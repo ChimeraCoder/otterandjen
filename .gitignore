@@ -1,0 +1,5 @@
+conf.sh
+conf.go
+*.swp
+*.swo
+*.swn
