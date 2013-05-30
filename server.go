@@ -130,11 +130,13 @@ func main() {
 	anaconda.SetConsumerSecret(TWITTER_CONSUMER_SECRET)
 	api := anaconda.NewTwitterApi(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 
-	for {
-		checkForTweets(api)
-		log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
-		time.Sleep(SLEEP_INTERVAL * time.Second)
-	}
+    go func() {
+        for {
+            checkForTweets(api)
+                log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
+                time.Sleep(SLEEP_INTERVAL * time.Second)
+        }
+    }
 
 	port_env := os.Getenv("PORT")
 	if port_env != "" {
