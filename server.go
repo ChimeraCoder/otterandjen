@@ -54,7 +54,7 @@ func retweetAndLog(api anaconda.TwitterApi, tweet anaconda.Tweet) (err error) {
 		if _, err = c.Do("SET", tweet.Id_str, strconv.FormatInt(time.Now().Unix(), 10)); err != nil {
 			return
 		}
-		log.Print("Set %s in redis", tweet.Id_str)
+		log.Printf("Set %s in redis", tweet.Id_str)
 
 		return
 	}
@@ -65,12 +65,15 @@ func retweetAndLog(api anaconda.TwitterApi, tweet anaconda.Tweet) (err error) {
 //Return true if the tweet was already retweeted previously
 func alreadyRetweeted(tweet anaconda.Tweet) (retweeted bool, err error) {
 	timestamp, err := c.Do("GET", tweet.Id_str)
-	if string(timestamp.([]byte)) == "" {
+
+	timestamp_b, ok := timestamp.([]byte)
+
+	if !ok || (string(timestamp_b) == "") {
 		retweeted = false //This is redundant, since retweeted defaults to false
 		log.Print("Was not already retweeted")
 	} else {
 		retweeted = true
-		log.Printf("Was already retweeted on %s", string(timestamp.([]byte)))
+		log.Printf("Was already retweeted on %s", string(timestamp_b))
 	}
 	return
 
