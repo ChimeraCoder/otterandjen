@@ -138,6 +138,18 @@ func main() {
         }
     }()
 
+    go func() {
+
+        for {
+            resp, err := http.Get("localhost")
+                if err != nil {
+                    panic(err)
+                }
+            log.Print("Received %s", resp.Status)
+            time.Sleep(SLEEP_INTERVAL * time.Second)
+        }
+    }()
+
 	port_env := os.Getenv("PORT")
 	if port_env != "" {
 		*httpAddr = ":" + port_env
