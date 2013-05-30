@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/garyburd/redigo/redis"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -11,6 +13,8 @@ import (
 )
 
 const SLEEP_INTERVAL = 120
+
+var httpAddr = flag.String("addr", ":8000", "HTTP server address")
 
 var TWITTER_CONSUMER_KEY = os.Getenv("TWITTER_CONSUMER_KEY")
 var TWITTER_CONSUMER_SECRET = os.Getenv("TWITTER_CONSUMER_SECRET")
@@ -130,6 +134,15 @@ func main() {
 		checkForTweets(api)
 		log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
 		time.Sleep(SLEEP_INTERVAL * time.Second)
+	}
+
+	port_env := os.Getenv("PORT")
+	if port_env != "" {
+		*httpAddr = ":" + port_env
+	}
+
+	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
+		log.Fatalf("Error listening, %v", err)
 	}
 
 }
