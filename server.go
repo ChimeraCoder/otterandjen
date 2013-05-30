@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const SLEEP_INTERVAL = 120
+
 var TWITTER_CONSUMER_KEY = os.Getenv("TWITTER_CONSUMER_KEY")
 var TWITTER_CONSUMER_SECRET = os.Getenv("TWITTER_CONSUMER_SECRET")
 var TWITTER_ACCESS_TOKEN = os.Getenv("TWITTER_ACCESS_TOKEN")
@@ -68,7 +70,7 @@ func alreadyRetweeted(tweet anaconda.Tweet) (retweeted bool, err error) {
 		log.Print("Was not already retweeted")
 	} else {
 		retweeted = true
-		log.Print("Was already retweeted on %s", string(timestamp.([]byte)))
+		log.Printf("Was already retweeted on %s", string(timestamp.([]byte)))
 	}
 	return
 
@@ -121,6 +123,10 @@ func main() {
 	anaconda.SetConsumerSecret(TWITTER_CONSUMER_SECRET)
 	api := anaconda.NewTwitterApi(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 
-	checkForTweets(api)
+	for {
+		checkForTweets(api)
+		log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
+		time.Sleep(SLEEP_INTERVAL * time.Second)
+	}
 
 }
