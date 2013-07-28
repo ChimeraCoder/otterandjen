@@ -82,8 +82,12 @@ func alreadyRetweeted(tweet anaconda.Tweet) (retweeted bool, err error) {
 
 }
 
-func checkForTweets(api anaconda.TwitterApi) {
-	searchResult, _ := api.GetHomeTimeline()
+func checkForTweets(api anaconda.TwitterApi) error {
+	searchResult, err := api.GetHomeTimeline()
+	if err != nil {
+		log.Print("error fetching timeline: %v", err)
+        return err
+	}
 	//Assume that we haven't tweeted at each other more than 10 times since the last check
 	//Knowing us, this is a very bad assumption.
 
@@ -93,13 +97,15 @@ func checkForTweets(api anaconda.TwitterApi) {
 		tweet := searchResult[i]
 		if TweetMentionsATarget(tweet) {
 			if err := retweetAndLog(api, tweet); err != nil {
-				panic(err)
+                log.Print("error when retweeting %v", err)
+                continue
 			}
 			log.Print(tweet.Text)
 		} else {
 			//log.Printf("Skipping tweet %v", tweet.Text)
 		}
 	}
+    return nil
 }
 
 func main() {
@@ -129,10 +135,10 @@ func main() {
 	anaconda.SetConsumerSecret(TWITTER_CONSUMER_SECRET)
 	api := anaconda.NewTwitterApi(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 
-    for {
-        checkForTweets(api)
-            log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
-            time.Sleep(SLEEP_INTERVAL * time.Second)
-    }
+	for {
+		checkForTweets(api)
+		log.Printf("Sleeping for %d seconds", SLEEP_INTERVAL)
+		time.Sleep(SLEEP_INTERVAL * time.Second)
+	}
 
 }
